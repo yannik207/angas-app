@@ -94,9 +94,17 @@ async def post_shift(shift_request: ShiftRequest, service: BaseService = Depends
         raise HTTPException(status_code=400, detail=str(e))
     return {"status": "success", "message": f"fuck off!"}
 
-@app.post("/api/users/{employee_id}/availability")
-async def post_employee_shift(employee_id: int, service: BaseService = Depends(get_base_servie), session: AsyncSession = Depends(base_connection.pg_execution)):
+@app.get("/shifts")
+async def get_shifts(service: BaseService = Depends(get_base_servie), session: AsyncSession = Depends(base_connection.pg_execution)):
+    logger.info("Reading all shifts...")
     try:
-        pass
-    except:
-        pass
+        return await service.read_shifts(session)
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+# @app.post("/api/users/{employee_id}/availability")
+# async def post_employee_shift(employee_id: int, service: BaseService = Depends(get_base_servie), session: AsyncSession = Depends(base_connection.pg_execution)):
+#     try:
+#         pass
+#     except:
+#         pass

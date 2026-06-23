@@ -49,5 +49,10 @@ class BaseService():
         update_data: dict[str, Any] = employee_attribute_update.model_dump(exclude_unset=True)
         await self.repo.update_user(session, employee, update_data)
     
+
+    async def read_shifts(self, session: AsyncSession) -> List[Shift]:
+        shifts = await self.repo.select_all_shifts(session)
+        return shifts
+
     async def create_shift(self, session: AsyncSession, shifts: List[ShiftBase]):
         await self.repo.insert_shift(session, shifts)

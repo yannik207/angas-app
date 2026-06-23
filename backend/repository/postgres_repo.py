@@ -47,6 +47,11 @@ class BasePostgresRepo():
     # Shift Repository
     #########################################################
 
+    async def select_all_shifts(self, session: AsyncSession) -> List[Shift]:
+        statement = select(Shift)
+        result = await session.exec(statement)
+        return result.all()
+
     async def insert_shift(self, session: AsyncSession, shifts: List[ShiftBase]):
         shifts_to_insert = [Shift.model_validate(shift) for shift in shifts]
         session.add_all(shifts_to_insert)
