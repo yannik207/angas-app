@@ -1,8 +1,8 @@
-from backend.models.database import Employee, Employee
+from backend.models import Employee, Employee, Shift, ShiftBase
 from backend.utils.security import get_password_hash
 from sqlmodel.ext.asyncio.session import AsyncSession
 from sqlmodel import select
-from typing import Any, Optional
+from typing import Any, Optional, List
 
 
 class BasePostgresRepo():
@@ -41,4 +41,13 @@ class BasePostgresRepo():
 
     async def update_user(self, session: AsyncSession, employee, update_data: dict[str, Any]):
         employee.sqlmodel_update(update_data)
+        await session.commit()
+    
+    #########################################################
+    # Shift Repository
+    #########################################################
+
+    async def insert_shift(self, session: AsyncSession, shifts: List[ShiftBase]):
+        shifts_to_insert = [Shift.model_validate(shift) for shift in shifts]
+        session.add_all(shifts_to_insert)
         await session.commit()

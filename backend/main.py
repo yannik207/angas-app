@@ -2,12 +2,11 @@ from fastapi import FastAPI, HTTPException, Request, Depends
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlmodel import SQLModel
 from sqlmodel.ext.asyncio.session import AsyncSession
-from typing import Annotated
 from backend.utils.central_logging import setup_logger
 from backend.depends import base_connection, get_base_servie
 from backend.service.base_service import BaseService
 from contextlib import asynccontextmanager
-from backend.models import Employee, EmployeeUpdateAttributes
+from backend.models import Employee, EmployeeUpdateAttributes, Shift, ShiftEmployeeLink, ShiftRequest
 from backend.models.exceptions import UserNotFoundError
 
 logger = setup_logger(__name__)
@@ -85,6 +84,15 @@ async def patch_user(employee_id: int, employee_to_update: EmployeeUpdateAttribu
 ####################################
 # Employee shift#
 ####################################
+
+@app.post("/shifts")
+async def post_shift(shift_request: ShiftRequest, service: BaseService = Depends(get_base_servie), session: AsyncSession = Depends(base_connection.pg_execution)):
+    logger.info("Receiving new shift...")
+    try:
+        await service.create_shift(session, shift_request.shifts)
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    return {"status": "success", "message": f"fuck off!"}
 
 @app.post("/api/users/{employee_id}/availability")
 async def post_employee_shift(employee_id: int, service: BaseService = Depends(get_base_servie), session: AsyncSession = Depends(base_connection.pg_execution)):

@@ -1,10 +1,10 @@
 from sqlmodel.ext.asyncio.session import AsyncSession
 from backend.repository.postgres_repo import BasePostgresRepo
-from backend.models.database import Employee, EmployeeUpdateAttributes
+from backend.models import Employee, EmployeeUpdateAttributes, Shift, ShiftBase
 from backend.models.exceptions import UserNotFoundError
 from backend.utils.central_logging import setup_logger
 from backend.utils.security import verify_password, create_access_token
-from typing import Any
+from typing import Any, List
 from fastapi import HTTPException, status
 
 class BaseService():
@@ -48,3 +48,6 @@ class BaseService():
         employee = await self.read_user(session, id=employee_id)
         update_data: dict[str, Any] = employee_attribute_update.model_dump(exclude_unset=True)
         await self.repo.update_user(session, employee, update_data)
+    
+    async def create_shift(self, session: AsyncSession, shifts: List[ShiftBase]):
+        await self.repo.insert_shift(session, shifts)
