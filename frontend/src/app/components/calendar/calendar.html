@@ -1,0 +1,55 @@
+<div class="calendar">
+  <header class="calendar__bar">
+    <div class="calendar__title">
+      <h2>{{ monthLabel() }}</h2>
+    </div>
+    <div class="calendar__nav">
+      <button type="button" class="ghost-btn" (click)="today()">Today</button>
+      <button type="button" class="icon-btn" (click)="prevMonth()" aria-label="Previous month">
+        &#8249;
+      </button>
+      <button type="button" class="icon-btn" (click)="nextMonth()" aria-label="Next month">
+        &#8250;
+      </button>
+    </div>
+  </header>
+
+  <div class="calendar__weekdays">
+    @for (wd of weekdays; track wd) {
+      <span class="calendar__weekday">{{ wd }}</span>
+    }
+  </div>
+
+  <div class="calendar__grid">
+    @for (week of weeks(); track $index) {
+      @for (day of week; track day.key) {
+        <button
+          type="button"
+          class="day"
+          [class.day--muted]="!day.inCurrentMonth"
+          [class.day--today]="day.isToday"
+          [class.day--selected]="day.key === selectedKey()"
+          [class.day--has-shifts]="day.shifts.length > 0"
+          (click)="selectDay(day)"
+        >
+          <span class="day__number">{{ day.dayNumber }}</span>
+
+          <span class="day__chips">
+            @for (shift of day.shifts.slice(0, 3); track shift.id) {
+              <span
+                class="chip"
+                [class]="'chip--' + shift.shift_type + ' status--' + shift.shift_status"
+                [title]="shift.shift_type + ' · ' + shift.shift_status"
+              >
+                {{ shift.shift_type }}
+              </span>
+            }
+            @if (day.shifts.length > 3) {
+              <span class="chip chip--more">+{{ day.shifts.length - 3 }}</span>
+            }
+          </span>
+        </button>
+      }
+    }
+  </div>
+</div>

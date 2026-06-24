@@ -1,0 +1,57 @@
+<form class="shift-form" [formGroup]="form" (ngSubmit)="submit()">
+  <div class="field">
+    <label for="date">Date</label>
+    <input id="date" type="date" formControlName="date" />
+    @if (form.controls.date.touched && form.controls.date.invalid) {
+      <small class="error">Pick a date.</small>
+    }
+  </div>
+
+  <div class="field-row">
+    <div class="field">
+      <label for="start">Start</label>
+      <input id="start" type="time" formControlName="startTime" />
+    </div>
+    <div class="field">
+      <label for="end">End</label>
+      <input id="end" type="time" formControlName="endTime" />
+    </div>
+  </div>
+
+  <div class="field">
+    <label for="type">Shift type</label>
+    <select id="type" formControlName="shiftType">
+      @for (t of shiftTypes; track t) {
+        <option [value]="t">{{ t }}</option>
+      }
+    </select>
+  </div>
+
+  <div class="field-row">
+    <div class="field">
+      <label for="status">Status</label>
+      <select id="status" formControlName="shiftStatus">
+        @for (s of shiftStatuses; track s) {
+          <option [value]="s">{{ s }}</option>
+        }
+      </select>
+    </div>
+    <div class="field">
+      <label for="employees">Staff needed</label>
+      <input id="employees" type="number" min="1" formControlName="necessaryEmployees" />
+    </div>
+  </div>
+
+  <div class="field">
+    <label for="notes">Notes</label>
+    <textarea id="notes" rows="2" formControlName="notes" placeholder="Optional details…"></textarea>
+  </div>
+
+  <button type="submit" class="primary-btn" [disabled]="submitting()">
+    @if (submitting()) {
+      Saving…
+    } @else {
+      Add shift
+    }
+  </button>
+</form>

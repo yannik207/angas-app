@@ -1,0 +1,86 @@
+<div class="shell">
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="brand__mark">A</div>
+      <div class="brand__text">
+        <strong>Angas</strong>
+        <span>Shift Planner</span>
+      </div>
+    </div>
+
+    <div class="stats">
+      <div class="stat">
+        <span class="stat__value">{{ totalShifts() }}</span>
+        <span class="stat__label">Total shifts</span>
+      </div>
+      <div class="stat">
+        <span class="stat__value">{{ openShifts() }}</span>
+        <span class="stat__label">Open</span>
+      </div>
+    </div>
+
+    <section class="panel">
+      <h3 class="panel__title">New shift</h3>
+      <app-shift-form
+        [selectedDate]="selectedKey()"
+        [submitting]="submitting()"
+        (create)="onCreate($event)"
+      />
+    </section>
+
+    <section class="panel panel--grow">
+      <h3 class="panel__title">{{ selectedLabel() }}</h3>
+
+      @if (selectedShifts().length === 0) {
+        <p class="empty">No shifts on this day yet.</p>
+      } @else {
+        <ul class="shift-list">
+          @for (shift of selectedShifts(); track shift.id) {
+            <li class="shift-item" [class]="'type--' + shift.shift_type">
+              <div class="shift-item__main">
+                <span class="shift-item__time">
+                  {{ formatTime(shift.start_time) }} – {{ formatTime(shift.end_time) }}
+                </span>
+                <span class="badge" [class]="'badge--' + shift.shift_status">
+                  {{ shift.shift_status }}
+                </span>
+              </div>
+              <div class="shift-item__meta">
+                <span class="shift-item__type">{{ shift.shift_type }}</span>
+                <span class="shift-item__staff">{{ shift.necessary_employees }} staff</span>
+              </div>
+              @if (shift.shift_notes) {
+                <p class="shift-item__notes">{{ shift.shift_notes }}</p>
+              }
+            </li>
+          }
+        </ul>
+      }
+    </section>
+  </aside>
+
+  <main class="main">
+    @if (error()) {
+      <div class="banner banner--error">
+        {{ error() }}
+        <button type="button" class="banner__action" (click)="loadShifts()">Retry</button>
+      </div>
+    }
+
+    <app-calendar
+      [shifts]="shifts()"
+      [viewDate]="viewDate()"
+      [selectedKey]="selectedKey()"
+      (dayClick)="onDayClick($event)"
+      (monthChange)="onMonthChange($event)"
+    />
+
+    @if (loading()) {
+      <div class="loading-veil">Loading shifts…</div>
+    }
+  </main>
+
+  @if (toast()) {
+    <div class="toast">{{ toast() }}</div>
+  }
+</div>
