@@ -2,7 +2,7 @@ from sqlmodel.ext.asyncio.session import AsyncSession
 from sqlalchemy.ext.asyncio import create_async_engine
 
 
-class BasePostgresConnection():
+class BasePostgresConnection:
     def __init__(self, user: str, password: str, database: str, host: str):
         self.user = user
         self.password = password
