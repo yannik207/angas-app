@@ -14,18 +14,6 @@ class BaseService:
         self.repo = postgres_repo
         self.logger = setup_logger(self.__class__.__name__)
 
-    async def read_user(self, session: AsyncSession, **kwargs: Any) -> Employee:
-        employee = await self.repo.find_user(session, **kwargs)
-        if not employee:
-            raise UserNotFoundError("Employee with this setting does not exist.")
-        else:
-            return employee
-
-    async def read_users(self, session: AsyncSession) -> list[Employee]:
-        self.logger.info("reading users data")
-        employees = await self.repo.select_all_users(session)
-        return employees
-
     async def login(self, session: AsyncSession, employee_request: Employee):
         try:
             employee_db = await self.read_user(session, email=employee_request.email)
@@ -41,6 +29,18 @@ class BaseService:
             return access_token
         except UserNotFoundError as e:
             raise HTTPException(status_code=404, detail=str(e))
+
+    async def read_user(self, session: AsyncSession, **kwargs: Any) -> Employee:
+        employee = await self.repo.find_user(session, **kwargs)
+        if not employee:
+            raise UserNotFoundError("Employee with this setting does not exist.")
+        else:
+            return employee
+
+    async def read_users(self, session: AsyncSession) -> list[Employee]:
+        self.logger.info("reading users data")
+        employees = await self.repo.select_all_users(session)
+        return employees
 
     async def create_user(self, session: AsyncSession, employee: Employee) -> None:
         try:
