@@ -1,55 +1,154 @@
 <div class="calendar">
   <header class="calendar__bar">
     <div class="calendar__title">
-      <h2>{{ monthLabel() }}</h2>
+      <h2>{{ headerLabel() }}</h2>
     </div>
-    <div class="calendar__nav">
-      <button type="button" class="ghost-btn" (click)="today()">Today</button>
-      <button type="button" class="icon-btn" (click)="prevMonth()" aria-label="Previous month">
-        &#8249;
-      </button>
-      <button type="button" class="icon-btn" (click)="nextMonth()" aria-label="Next month">
-        &#8250;
-      </button>
+
+    <div class="calendar__controls">
+      <div class="view-toggle" role="group" aria-label="Calendar arrangement">
+        <button
+          type="button"
+          class="view-toggle__btn"
+          [class.view-toggle__btn--active]="view() === 'month'"
+          (click)="setView('month')"
+        >
+          Month
+        </button>
+        <button
+          type="button"
+          class="view-toggle__btn"
+          [class.view-toggle__btn--active]="view() === 'week'"
+          (click)="setView('week')"
+        >
+          Week
+        </button>
+      </div>
+
+      <div class="calendar__nav">
+        <button type="button" class="ghost-btn" (click)="today()">Today</button>
+        <button type="button" class="icon-btn" (click)="prev()" aria-label="Previous">
+          &#8249;
+        </button>
+        <button type="button" class="icon-btn" (click)="next()" aria-label="Next">
+          &#8250;
+        </button>
+      </div>
     </div>
   </header>
 
-  <div class="calendar__weekdays">
-    @for (wd of weekdays; track wd) {
-      <span class="calendar__weekday">{{ wd }}</span>
-    }
-  </div>
-
-  <div class="calendar__grid">
-    @for (week of weeks(); track $index) {
-      @for (day of week; track day.key) {
-        <button
-          type="button"
-          class="day"
-          [class.day--muted]="!day.inCurrentMonth"
-          [class.day--today]="day.isToday"
-          [class.day--selected]="day.key === selectedKey()"
-          [class.day--has-shifts]="day.shifts.length > 0"
-          (click)="selectDay(day)"
-        >
-          <span class="day__number">{{ day.dayNumber }}</span>
-
-          <span class="day__chips">
-            @for (shift of day.shifts.slice(0, 3); track shift.id) {
-              <span
-                class="chip"
-                [class]="'chip--' + shift.shift_type + ' status--' + shift.shift_status"
-                [title]="shift.shift_type + ' · ' + shift.shift_status"
-              >
-                {{ shift.shift_type }}
-              </span>
-            }
-            @if (day.shifts.length > 3) {
-              <span class="chip chip--more">+{{ day.shifts.length - 3 }}</span>
-            }
-          </span>
-        </button>
+  @if (view() === 'month') {
+    <div class="calendar__weekdays">
+      @for (wd of weekdays; track wd) {
+        <span class="calendar__weekday">{{ wd }}</span>
       }
-    }
-  </div>
+    </div>
+
+    <div class="calendar__grid">
+      @for (week of weeks(); track $index) {
+        @for (day of week; track day.key) {
+          <div
+            class="day"
+            role="button"
+            tabindex="0"
+            [class.day--muted]="!day.inCurrentMonth"
+            [class.day--today]="day.isToday"
+            [class.day--selected]="day.key === selectedKey()"
+            [class.day--has-shifts]="day.shifts.length > 0"
+            (click)="openDayInWeek(day)"
+            (keydown.enter)="openDayInWeek(day)"
+            (keydown.space)="openDayInWeek(day); $event.preventDefault()"
+          >
+            <span class="day__number">{{ day.dayNumber }}</span>
+
+            <span class="day__chips">
+              @for (shift of day.shifts.slice(0, 3); track shift.id) {
+                <span
+                  class="chip"
+                  [class]="'chip--' + shift.shift_type + ' status--' + shift.shift_status"
+                  [title]="chipTime(shift.start_time) + ' · ' + shift.shift_type + ' · ' + shift.shift_status"
+                >
+                  <span class="chip__time">{{ chipTime(shift.start_time) }}</span>
+                  <span class="chip__label">{{ shift.shift_type }}</span>
+                  <app-shift-menu
+                    class="chip__menu"
+                    size="sm"
+                    [shift]="shift"
+                    (action)="shiftAction.emit($event)"
+                  />
+                </span>
+              }
+              @if (day.shifts.length > 3) {
+                <span class="chip chip--more">+{{ day.shifts.length - 3 }}</span>
+              }
+            </span>
+          </div>
+        }
+      }
+    </div>
+  } @else {
+    <div class="week" [style.--hour-h.px]="hourHeight">
+      <div class="week__head">
+        <span class="week__gutter"></span>
+        @for (day of weekDays(); track day.key) {
+          <button
+            type="button"
+            class="week__day-head"
+            [class.week__day-head--today]="day.isToday"
+            [class.week__day-head--selected]="day.key === selectedKey()"
+            (click)="selectDay(day)"
+          >
+            <span class="week__day-name">{{ weekdays[$index] }}</span>
+            <span class="week__day-num">{{ day.dayNumber }}</span>
+          </button>
+        }
+      </div>
+
+      <div class="week__body">
+        <div class="week__times">
+          @for (h of hours; track h) {
+            <div class="week__time"><span>{{ hourLabel(h) }}</span></div>
+          }
+        </div>
+
+        <div class="week__cols">
+          @for (col of weekColumns(); track col.day.key) {
+            <div
+              class="week__col"
+              [class.week__col--today]="col.day.isToday"
+              [class.week__col--selected]="col.day.key === selectedKey()"
+              (click)="selectDay(col.day)"
+            >
+              @for (h of hours; track h) {
+                <div class="week__slot"></div>
+              }
+
+              @for (block of col.blocks; track block.shift.id) {
+                <div
+                  class="week-event"
+                  role="button"
+                  tabindex="0"
+                  [class]="'chip--' + block.shift.shift_type + ' status--' + block.shift.shift_status"
+                  [style.top.px]="block.top"
+                  [style.height.px]="block.height"
+                  [style.left.%]="block.left"
+                  [style.width.%]="block.width"
+                  [title]="block.timeLabel + ' · ' + block.shift.shift_type + ' · ' + block.shift.shift_status"
+                  (click)="selectDay(col.day)"
+                  (keydown.enter)="selectDay(col.day)"
+                >
+                  <app-shift-menu
+                    class="week-event__menu"
+                    [shift]="block.shift"
+                    (action)="shiftAction.emit($event)"
+                  />
+                  <span class="week-event__time">{{ block.timeLabel }}</span>
+                  <span class="week-event__type">{{ block.shift.shift_type }}</span>
+                </div>
+              }
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+  }
 </div>

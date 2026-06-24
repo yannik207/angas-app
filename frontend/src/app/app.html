@@ -19,43 +19,13 @@
       </div>
     </div>
 
-    <section class="panel">
+    <section class="panel panel--grow">
       <h3 class="panel__title">New shift</h3>
       <app-shift-form
         [selectedDate]="selectedKey()"
         [submitting]="submitting()"
         (create)="onCreate($event)"
       />
-    </section>
-
-    <section class="panel panel--grow">
-      <h3 class="panel__title">{{ selectedLabel() }}</h3>
-
-      @if (selectedShifts().length === 0) {
-        <p class="empty">No shifts on this day yet.</p>
-      } @else {
-        <ul class="shift-list">
-          @for (shift of selectedShifts(); track shift.id) {
-            <li class="shift-item" [class]="'type--' + shift.shift_type">
-              <div class="shift-item__main">
-                <span class="shift-item__time">
-                  {{ formatTime(shift.start_time) }} – {{ formatTime(shift.end_time) }}
-                </span>
-                <span class="badge" [class]="'badge--' + shift.shift_status">
-                  {{ shift.shift_status }}
-                </span>
-              </div>
-              <div class="shift-item__meta">
-                <span class="shift-item__type">{{ shift.shift_type }}</span>
-                <span class="shift-item__staff">{{ shift.necessary_employees }} staff</span>
-              </div>
-              @if (shift.shift_notes) {
-                <p class="shift-item__notes">{{ shift.shift_notes }}</p>
-              }
-            </li>
-          }
-        </ul>
-      }
     </section>
   </aside>
 
@@ -73,6 +43,7 @@
       [selectedKey]="selectedKey()"
       (dayClick)="onDayClick($event)"
       (monthChange)="onMonthChange($event)"
+      (shiftAction)="onShiftAction($event)"
     />
 
     @if (loading()) {

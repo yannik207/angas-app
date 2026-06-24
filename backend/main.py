@@ -1,3 +1,4 @@
+import uuid
 from fastapi import FastAPI, HTTPException, Request, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import OAuth2PasswordRequestForm
@@ -8,7 +9,7 @@ from backend.depends import base_connection, get_base_servie
 from backend.service.base_service import BaseService
 from contextlib import asynccontextmanager
 from backend.models import Employee, EmployeeUpdateAttributes, Shift, ShiftEmployeeLink, ShiftRequest
-from backend.models.exceptions import UserNotFoundError
+from backend.models.exceptions import UserNotFoundError, ShiftNotFoundError
 
 logger = setup_logger(__name__)
 
@@ -113,6 +114,17 @@ async def get_shifts(service: BaseService = Depends(get_base_servie), session: A
         return await service.read_shifts(session)
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
+
+@app.delete("/shifts/{shift_id}")
+async def delete_shift(shift_id: uuid.UUID, service: BaseService = Depends(get_base_servie), session: AsyncSession = Depends(base_connection.pg_execution)):
+    logger.info("Deleting shift...", extra={"shift_id": str(shift_id)})
+    try:
+        await service.delete_shift(session, shift_id)
+    except ShiftNotFoundError as e:
+        raise HTTPException(status_code=404, detail=str(e))
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    return {"status": "success", "message": "Shift deleted"}
 
 # @app.post("/api/users/{employee_id}/availability")
 # async def post_employee_shift(employee_id: int, service: BaseService = Depends(get_base_servie), session: AsyncSession = Depends(base_connection.pg_execution)):

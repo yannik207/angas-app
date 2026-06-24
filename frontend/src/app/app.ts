@@ -1,6 +1,7 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { Calendar, CalendarDay, dateKey } from './components/calendar/calendar';
 import { ShiftForm } from './components/shift-form/shift-form';
+import { ShiftAction } from './components/shift-menu/shift-menu';
 import { ShiftService } from './services/shift.service';
 import { Shift, ShiftBase } from './models/shift.model';
 
@@ -22,25 +23,6 @@ export class App {
   readonly submitting = signal(false);
   readonly error = signal<string | null>(null);
   readonly toast = signal<string | null>(null);
-
-  readonly selectedShifts = computed(() => {
-    const key = this.selectedKey();
-    if (!key) return [];
-    return this.shifts()
-      .filter((s) => s.start_time && dateKey(new Date(s.start_time)) === key)
-      .sort((a, b) => a.start_time.localeCompare(b.start_time));
-  });
-
-  readonly selectedLabel = computed(() => {
-    const key = this.selectedKey();
-    if (!key) return 'No date selected';
-    return new Date(`${key}T00:00:00`).toLocaleDateString(undefined, {
-      weekday: 'long',
-      day: 'numeric',
-      month: 'long',
-      year: 'numeric',
-    });
-  });
 
   readonly totalShifts = computed(() => this.shifts().length);
   readonly openShifts = computed(
@@ -74,6 +56,38 @@ export class App {
     this.viewDate.set(date);
   }
 
+  onShiftAction(event: { action: ShiftAction; shift: Shift }): void {
+    switch (event.action) {
+      case 'delete':
+        this.deleteShift(event.shift);
+        break;
+      case 'edit':
+        // Editing is not wired to a backend endpoint yet.
+        this.showToast('Editing shifts is coming soon');
+        break;
+    }
+  }
+
+  private deleteShift(shift: Shift): void {
+    const when = new Date(shift.start_time).toLocaleString(undefined, {
+      weekday: 'short',
+      day: 'numeric',
+      month: 'short',
+      hour: '2-digit',
+      minute: '2-digit',
+    });
+    if (!confirm(`Delete the ${shift.shift_type} shift on ${when}?`)) return;
+
+    this.error.set(null);
+    this.shiftService.deleteShift(shift.id).subscribe({
+      next: () => {
+        this.showToast('Shift deleted');
+        this.loadShifts();
+      },
+      error: () => this.error.set('Failed to delete the shift. Please try again.'),
+    });
+  }
+
   onCreate(shift: ShiftBase): void {
     this.submitting.set(true);
     this.error.set(null);
@@ -88,14 +102,6 @@ export class App {
         this.submitting.set(false);
         this.error.set('Failed to create the shift. Please try again.');
       },
-    });
-  }
-
-  formatTime(iso: string): string {
-    if (!iso) return '';
-    return new Date(iso).toLocaleTimeString(undefined, {
-      hour: '2-digit',
-      minute: '2-digit',
     });
   }
 

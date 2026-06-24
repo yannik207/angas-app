@@ -1,7 +1,8 @@
+import uuid
 from sqlmodel.ext.asyncio.session import AsyncSession
 from backend.repository.postgres_repo import BasePostgresRepo
 from backend.models import Employee, EmployeeUpdateAttributes, Shift, ShiftBase
-from backend.models.exceptions import UserNotFoundError
+from backend.models.exceptions import UserNotFoundError, ShiftNotFoundError
 from backend.utils.central_logging import setup_logger
 from backend.utils.security import verify_password, create_access_token
 from typing import Any, List
@@ -56,3 +57,10 @@ class BaseService():
 
     async def create_shift(self, session: AsyncSession, shifts: List[ShiftBase]):
         await self.repo.insert_shift(session, shifts)
+
+    async def delete_shift(self, session: AsyncSession, shift_id: uuid.UUID):
+        shift = await self.repo.find_by_shift_id(session, shift_id)
+        if not shift:
+            raise ShiftNotFoundError(f"Shift with this id does not exist.")
+        else:
+            await self.repo.delete_shift(session, shift)

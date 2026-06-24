@@ -17,4 +17,8 @@ export class ShiftService {
     const body: ShiftRequest = { shifts: [shift] };
     return this.http.post<{ status: string; message: string }>(this.baseUrl, body);
   }
+
+  deleteShift(id: string): Observable<{ status: string; message: string }> {
+    return this.http.delete<{ status: string; message: string }>(`${this.baseUrl}/${id}`);
+  }
 }

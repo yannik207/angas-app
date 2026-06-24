@@ -1,0 +1,37 @@
+<button
+  #trigger
+  type="button"
+  class="shift-menu__trigger"
+  aria-label="Shift options"
+  aria-haspopup="menu"
+  [attr.aria-expanded]="open()"
+  (click)="toggle($event)"
+>
+  <svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true">
+    <circle cx="8" cy="3" r="1.5" />
+    <circle cx="8" cy="8" r="1.5" />
+    <circle cx="8" cy="13" r="1.5" />
+  </svg>
+</button>
+
+@if (open()) {
+  <div
+    class="shift-menu__dropdown"
+    role="menu"
+    [style.top.px]="menuTop()"
+    [style.left.px]="menuLeft()"
+    (click)="$event.stopPropagation()"
+  >
+    @for (item of items; track item.action) {
+      <button
+        type="button"
+        class="shift-menu__item"
+        [class.shift-menu__item--danger]="item.danger"
+        role="menuitem"
+        (click)="select($event, item.action)"
+      >
+        {{ item.label }}
+      </button>
+    }
+  </div>
+}

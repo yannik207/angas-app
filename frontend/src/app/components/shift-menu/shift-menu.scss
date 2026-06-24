@@ -1,0 +1,72 @@
+:host {
+  display: inline-flex;
+}
+
+.shift-menu__trigger {
+  display: inline-grid;
+  place-items: center;
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  border: none;
+  border-radius: 6px;
+  background: rgba(0, 0, 0, 0.18);
+  color: currentColor;
+  cursor: pointer;
+  opacity: 0.85;
+  transition: background 0.15s ease, opacity 0.15s ease;
+}
+
+.shift-menu__trigger:hover {
+  background: rgba(0, 0, 0, 0.34);
+  opacity: 1;
+}
+
+.shift-menu__trigger svg {
+  fill: currentColor;
+}
+
+:host(.shift-menu--sm) .shift-menu__trigger {
+  width: 16px;
+  height: 16px;
+  border-radius: 5px;
+}
+
+.shift-menu__dropdown {
+  position: fixed;
+  z-index: 60;
+  min-width: 150px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 4px;
+  background: var(--surface-3);
+  border: 1px solid var(--border-strong);
+  border-radius: 10px;
+  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.5);
+}
+
+.shift-menu__item {
+  text-align: left;
+  padding: 0.45rem 0.6rem;
+  border: none;
+  border-radius: 7px;
+  background: transparent;
+  color: var(--text);
+  font: inherit;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: background 0.12s ease, color 0.12s ease;
+}
+
+.shift-menu__item:hover {
+  background: var(--surface-4);
+}
+
+.shift-menu__item--danger {
+  color: #f87171;
+}
+
+.shift-menu__item--danger:hover {
+  background: rgba(248, 113, 113, 0.15);
+}

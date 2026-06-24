@@ -1,3 +1,4 @@
+import uuid
 from backend.models import Employee, Employee, Shift, ShiftBase
 from backend.utils.security import get_password_hash
 from sqlmodel.ext.asyncio.session import AsyncSession
@@ -55,4 +56,13 @@ class BasePostgresRepo():
     async def insert_shift(self, session: AsyncSession, shifts: List[ShiftBase]):
         shifts_to_insert = [Shift.model_validate(shift) for shift in shifts]
         session.add_all(shifts_to_insert)
+        await session.commit()
+    
+    async def find_by_shift_id(self, session: AsyncSession, shift_id: uuid.UUID) -> Optional[Shift]:
+        statement = select(Shift).where(Shift.id == shift_id)
+        result = await session.exec(statement)
+        return result.first()
+    
+    async def delete_shift(self, session: AsyncSession, shift: Shift):
+        await session.delete(shift)
         await session.commit()
