@@ -11,6 +11,7 @@ logger = setup_logger(__name__)
 
 employee_router = APIRouter(tags=["employee"])
 
+
 @employee_router.get("employee/{user_id}", response_model=Employee)
 async def get_user(
     user_id: uuid.UUID,
