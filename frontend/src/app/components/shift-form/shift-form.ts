@@ -1,6 +1,7 @@
 import {
   ChangeDetectionStrategy,
   Component,
+  computed,
   effect,
   inject,
   input,
@@ -8,12 +9,28 @@ import {
 } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import {
+  Shift,
   ShiftBase,
   SHIFT_STATUSES,
   SHIFT_TYPES,
   ShiftStatus,
   ShiftType,
 } from '../../models/shift.model';
+
+/** yyyy-mm-dd in local time. */
+function toDateInput(iso: string): string {
+  const d = new Date(iso);
+  const y = d.getFullYear();
+  const m = `${d.getMonth() + 1}`.padStart(2, '0');
+  const day = `${d.getDate()}`.padStart(2, '0');
+  return `${y}-${m}-${day}`;
+}
+
+/** HH:mm in local time. */
+function toTimeInput(iso: string): string {
+  const d = new Date(iso);
+  return `${`${d.getHours()}`.padStart(2, '0')}:${`${d.getMinutes()}`.padStart(2, '0')}`;
+}
 
 @Component({
   selector: 'app-shift-form',
@@ -25,14 +42,20 @@ import {
 export class ShiftForm {
   /** Pre-selected date (yyyy-mm-dd) coming from the calendar. */
   readonly selectedDate = input<string | null>(null);
+  /** When set the form switches to edit mode for this shift. */
+  readonly editing = input<Shift | null>(null);
   readonly submitting = input<boolean>(false);
 
   readonly create = output<ShiftBase>();
+  readonly update = output<{ id: string; changes: ShiftBase }>();
+  readonly cancel = output<void>();
 
   private readonly fb = inject(FormBuilder);
 
   readonly shiftTypes = SHIFT_TYPES;
   readonly shiftStatuses = SHIFT_STATUSES;
+
+  readonly isEditing = computed(() => this.editing() !== null);
 
   readonly form = this.fb.nonNullable.group({
     date: ['', Validators.required],
@@ -46,6 +69,20 @@ export class ShiftForm {
 
   constructor() {
     effect(() => {
+      const shift = this.editing();
+      if (shift) {
+        this.form.setValue({
+          date: toDateInput(shift.start_time),
+          startTime: toTimeInput(shift.start_time),
+          endTime: toTimeInput(shift.end_time),
+          shiftType: shift.shift_type,
+          shiftStatus: shift.shift_status,
+          necessaryEmployees: shift.necessary_employees,
+          notes: shift.shift_notes ?? '',
+        });
+        return;
+      }
+
       const date = this.selectedDate();
       if (date) {
         this.form.controls.date.setValue(date);
@@ -76,6 +113,15 @@ export class ShiftForm {
       necessary_employees: Number(v.necessaryEmployees),
     };
 
-    this.create.emit(shift);
+    const editing = this.editing();
+    if (editing) {
+      this.update.emit({ id: editing.id, changes: shift });
+    } else {
+      this.create.emit(shift);
+    }
+  }
+
+  cancelEdit(): void {
+    this.cancel.emit();
   }
 }

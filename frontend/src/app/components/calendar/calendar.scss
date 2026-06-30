@@ -204,10 +204,36 @@
   overflow: hidden;
 }
 
+.chip__staffing {
+  flex: 0 0 auto;
+  align-self: center;
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.3);
+}
+
+/* Fallback colour kept at specificity 0 (via :where) so the staffing--*
+   colour classes below always win, regardless of source order. */
+:where(.chip__staffing, .week-event__staffing) {
+  background: var(--surface-4);
+}
+
 .chip__time {
   flex: 0 0 auto;
   font-variant-numeric: tabular-nums;
   font-weight: 700;
+}
+
+/* Staffing colours: green = full, amber = partially staffed, red = nobody yet. */
+.staffing--full {
+  background: #16a34a;
+}
+.staffing--partial {
+  background: #f59e0b;
+}
+.staffing--empty {
+  background: #ef4444;
 }
 
 .chip__label {
@@ -398,7 +424,7 @@
   display: flex;
   flex-direction: column;
   gap: 0.1rem;
-  padding: 0.2rem 1.45rem 0.2rem 0.4rem;
+  padding: 0.2rem 1.45rem 0.2rem 1.1rem;
   border: none;
   border-radius: 8px;
   color: #fff;
@@ -414,6 +440,16 @@
 .week-event:focus-within {
   z-index: 5;
   box-shadow: 0 4px 14px rgba(0, 0, 0, 0.45);
+}
+
+.week-event__staffing {
+  position: absolute;
+  top: 0.4rem;
+  left: 0.4rem;
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.3);
 }
 
 .week-event__menu {

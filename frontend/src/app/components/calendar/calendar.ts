@@ -226,6 +226,15 @@ export class Calendar {
     return formatMinutes(minutesOfDay(new Date(iso)));
   }
 
+  /** Human-readable staffing summary used in the chip/event tooltip. */
+  staffingLabel(shift: Shift): string {
+    const suffix =
+      shift.staffing_status === 'full'
+        ? 'fully staffed'
+        : `needs ${shift.missing_employees} more`;
+    return `${shift.assigned_employees}/${shift.necessary_employees} staffed · ${suffix}`;
+  }
+
   private shiftDays(delta: number): void {
     const d = this.viewDate();
     this.monthChange.emit(new Date(d.getFullYear(), d.getMonth(), d.getDate() + delta));

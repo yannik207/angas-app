@@ -1,0 +1,170 @@
+<div class="shell">
+  <aside class="sidebar">
+    <div class="stats">
+      <div class="stat">
+        <span class="stat__value">{{ totalShifts() }}</span>
+        <span class="stat__label">Total shifts</span>
+      </div>
+      <div class="stat">
+        <span class="stat__value">{{ openShifts() }}</span>
+        <span class="stat__label">Open</span>
+      </div>
+    </div>
+
+    <section class="panel panel--grow">
+      <h3 class="panel__title">{{ editingShift() ? 'Edit shift' : 'New shift' }}</h3>
+      <app-shift-form
+        [selectedDate]="selectedKey()"
+        [editing]="editingShift()"
+        [submitting]="submitting()"
+        (create)="onCreate($event)"
+        (update)="onUpdate($event)"
+        (cancel)="cancelEdit()"
+      />
+    </section>
+  </aside>
+
+  <main class="main">
+    @if (error()) {
+      <div class="banner banner--error">
+        {{ error() }}
+        <button type="button" class="banner__action" (click)="loadShifts()">Retry</button>
+      </div>
+    }
+
+    <app-calendar
+      [shifts]="shifts()"
+      [viewDate]="viewDate()"
+      [selectedKey]="selectedKey()"
+      (dayClick)="onDayClick($event)"
+      (monthChange)="onMonthChange($event)"
+      (shiftAction)="onShiftAction($event)"
+    />
+
+    @if (loading()) {
+      <div class="loading-veil">Loading shifts…</div>
+    }
+  </main>
+
+  @if (toast()) {
+    <div class="toast">{{ toast() }}</div>
+  }
+
+  @if (detailsTarget(); as target) {
+    <div class="details-backdrop" (click)="closeDetails()">
+      <div
+        class="details"
+        role="dialog"
+        aria-modal="true"
+        aria-label="Shift details"
+        (click)="$event.stopPropagation()"
+      >
+        <header class="details__head">
+          <div>
+            <h3 class="details__title">{{ target.shift_type | titlecase }} shift</h3>
+            <p class="details__subtitle">
+              {{ formatDateTime(target.start_time) }} → {{ formatDateTime(target.end_time) }}
+            </p>
+          </div>
+          <button type="button" class="details__close" aria-label="Close" (click)="closeDetails()">
+            &times;
+          </button>
+        </header>
+
+        @if (detailsLoading()) {
+          <p class="details__muted">Loading details…</p>
+        } @else if (detailsError()) {
+          <p class="details__error">{{ detailsError() }}</p>
+        } @else if (detailsShift(); as d) {
+          <div class="details__meta">
+            <span class="details__badge status--{{ d.shift_status }}">{{ d.shift_status }}</span>
+            <span class="details__stat">{{ d.assigned_employees }}/{{ d.necessary_employees }} staffed</span>
+            @if (d.missing_employees > 0) {
+              <span class="details__stat details__stat--missing">{{ d.missing_employees }} missing</span>
+            }
+          </div>
+
+          @if (d.shift_notes) {
+            <p class="details__notes">{{ d.shift_notes }}</p>
+          }
+
+          <h4 class="details__section">Assigned employees</h4>
+          @if (d.employees.length > 0) {
+            <ul class="details__people">
+              @for (emp of d.employees; track emp.id) {
+                <li class="details__person">{{ emp.name }}</li>
+              }
+            </ul>
+          } @else {
+            <p class="details__muted">No employees assigned yet.</p>
+          }
+        }
+      </div>
+    </div>
+  }
+
+  @if (assignTarget(); as target) {
+    <div class="details-backdrop" (click)="closeAssign()">
+      <div
+        class="details"
+        role="dialog"
+        aria-modal="true"
+        aria-label="Assign staff"
+        (click)="$event.stopPropagation()"
+      >
+        <header class="details__head">
+          <div>
+            <h3 class="details__title">Assign staff</h3>
+            <p class="details__subtitle">
+              {{ target.shift_type | titlecase }} shift · {{ formatDateTime(target.start_time) }}
+            </p>
+          </div>
+          <button type="button" class="details__close" aria-label="Close" (click)="closeAssign()">
+            &times;
+          </button>
+        </header>
+
+        @if (employeesLoading()) {
+          <p class="details__muted">Loading employees…</p>
+        } @else {
+          <label class="assign__label" for="assign-employee">Employee</label>
+          <select
+            id="assign-employee"
+            class="assign__select"
+            [value]="selectedEmployeeId()"
+            (change)="selectedEmployeeId.set($any($event.target).value)"
+          >
+            <option value="" disabled>Select an employee…</option>
+            @for (emp of employees(); track emp.id) {
+              <option [value]="emp.id" [disabled]="!emp.available">
+                {{ emp.name }}{{ emp.available ? '' : ' (already assigned)' }}
+              </option>
+            }
+          </select>
+
+          @if (employees().length === 0) {
+            <p class="details__muted">No employees found.</p>
+          }
+
+          @if (assignError()) {
+            <p class="details__error">{{ assignError() }}</p>
+          }
+
+          <div class="assign__actions">
+            <button type="button" class="assign__btn assign__btn--ghost" (click)="closeAssign()">
+              Cancel
+            </button>
+            <button
+              type="button"
+              class="assign__btn assign__btn--primary"
+              [disabled]="!selectedEmployeeId() || assigning()"
+              (click)="confirmAssign()"
+            >
+              {{ assigning() ? 'Assigning…' : 'Assign' }}
+            </button>
+          </div>
+        }
+      </div>
+    </div>
+  }
+</div>

@@ -1,0 +1,52 @@
+<form class="employee-form" [formGroup]="form" (ngSubmit)="submit()">
+  <div class="field">
+    <label for="employee-name">Name</label>
+    <input id="employee-name" type="text" formControlName="name" placeholder="Jane Doe" />
+    @if (form.controls.name.touched && form.controls.name.invalid) {
+      <small class="error">Enter a name.</small>
+    }
+  </div>
+
+  <div class="field">
+    <label for="employee-email">Email</label>
+    <input id="employee-email" type="email" formControlName="email" placeholder="jane@example.com" />
+    @if (form.controls.email.touched && form.controls.email.invalid) {
+      <small class="error">Enter a valid email.</small>
+    }
+  </div>
+
+  <div class="field">
+    <label for="employee-password">Password</label>
+    <input id="employee-password" type="password" formControlName="password" placeholder="At least 6 characters" />
+    @if (form.controls.password.touched && form.controls.password.invalid) {
+      <small class="error">Password must be at least 6 characters.</small>
+    }
+  </div>
+
+  <div class="field">
+    <label for="employee-role">Role</label>
+    @if (roles().length === 0) {
+      <p class="hint">No roles yet — add one above first.</p>
+    } @else {
+      <select id="employee-role" formControlName="role">
+        <option value="" disabled>Select a role…</option>
+        @for (r of roles(); track r) {
+          <option [value]="r">{{ r }}</option>
+        }
+      </select>
+      @if (form.controls.role.touched && form.controls.role.invalid) {
+        <small class="error">Pick a role.</small>
+      }
+    }
+  </div>
+
+  <div class="form-actions">
+    <button type="submit" class="primary-btn" [disabled]="submitting()">
+      @if (submitting()) {
+        Saving…
+      } @else {
+        Add employee
+      }
+    </button>
+  </div>
+</form>

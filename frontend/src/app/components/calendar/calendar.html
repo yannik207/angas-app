@@ -65,8 +65,13 @@
                 <span
                   class="chip"
                   [class]="'chip--' + shift.shift_type + ' status--' + shift.shift_status"
-                  [title]="chipTime(shift.start_time) + ' · ' + shift.shift_type + ' · ' + shift.shift_status"
+                  [title]="chipTime(shift.start_time) + ' · ' + shift.shift_type + ' · ' + staffingLabel(shift)"
                 >
+                  <span
+                    class="chip__staffing"
+                    [class]="'staffing--' + shift.staffing_status"
+                    aria-hidden="true"
+                  ></span>
                   <span class="chip__time">{{ chipTime(shift.start_time) }}</span>
                   <span class="chip__label">{{ shift.shift_type }}</span>
                   <app-shift-menu
@@ -132,10 +137,15 @@
                   [style.height.px]="block.height"
                   [style.left.%]="block.left"
                   [style.width.%]="block.width"
-                  [title]="block.timeLabel + ' · ' + block.shift.shift_type + ' · ' + block.shift.shift_status"
+                  [title]="block.timeLabel + ' · ' + block.shift.shift_type + ' · ' + staffingLabel(block.shift)"
                   (click)="selectDay(col.day)"
                   (keydown.enter)="selectDay(col.day)"
                 >
+                  <span
+                    class="week-event__staffing"
+                    [class]="'staffing--' + block.shift.staffing_status"
+                    aria-hidden="true"
+                  ></span>
                   <app-shift-menu
                     class="week-event__menu"
                     [shift]="block.shift"

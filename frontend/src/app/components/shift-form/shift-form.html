@@ -47,11 +47,25 @@
     <textarea id="notes" rows="2" formControlName="notes" placeholder="Optional details…"></textarea>
   </div>
 
-  <button type="submit" class="primary-btn" [disabled]="submitting()">
-    @if (submitting()) {
-      Saving…
-    } @else {
-      Add shift
+  <div class="form-actions">
+    <button type="submit" class="primary-btn" [disabled]="submitting()">
+      @if (submitting()) {
+        Saving…
+      } @else if (isEditing()) {
+        Save changes
+      } @else {
+        Add shift
+      }
+    </button>
+    @if (isEditing()) {
+      <button
+        type="button"
+        class="ghost-btn"
+        [disabled]="submitting()"
+        (click)="cancelEdit()"
+      >
+        Cancel
+      </button>
     }
-  </button>
+  </div>
 </form>

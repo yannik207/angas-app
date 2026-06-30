@@ -1,4 +1,4 @@
-.shift-form {
+.employee-form {
   display: flex;
   flex-direction: column;
   gap: 0.9rem;
@@ -11,11 +11,6 @@
   flex: 1;
 }
 
-.field-row {
-  display: flex;
-  gap: 0.75rem;
-}
-
 label {
   font-size: 0.74rem;
   font-weight: 600;
@@ -25,8 +20,7 @@ label {
 }
 
 input,
-select,
-textarea {
+select {
   width: 100%;
   box-sizing: border-box;
   padding: 0.55rem 0.7rem;
@@ -39,20 +33,21 @@ textarea {
 }
 
 input:focus,
-select:focus,
-textarea:focus {
+select:focus {
   outline: none;
   border-color: var(--accent);
   box-shadow: 0 0 0 3px var(--accent-soft);
 }
 
-textarea {
-  resize: vertical;
-}
-
 .error {
   color: #f87171;
   font-size: 0.72rem;
+}
+
+.hint {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: 0.78rem;
 }
 
 .form-actions {
@@ -72,28 +67,6 @@ textarea {
   font-weight: 600;
   cursor: pointer;
   transition: background 0.15s ease, transform 0.05s ease, opacity 0.15s ease;
-}
-
-.ghost-btn {
-  padding: 0.65rem 1rem;
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  background: transparent;
-  color: var(--text);
-  font: inherit;
-  font-weight: 600;
-  cursor: pointer;
-  transition: border-color 0.15s ease, background 0.15s ease, opacity 0.15s ease;
-}
-
-.ghost-btn:hover {
-  border-color: var(--accent);
-  background: var(--surface-3);
-}
-
-.ghost-btn:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
 }
 
 .primary-btn:hover {

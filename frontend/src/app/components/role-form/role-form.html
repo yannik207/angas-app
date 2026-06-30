@@ -1,0 +1,18 @@
+<form class="role-form" [formGroup]="form" (ngSubmit)="submit()">
+  <div class="field">
+    <label for="role-name">Role name</label>
+    <div class="role-form__row">
+      <input id="role-name" type="text" formControlName="name" placeholder="e.g. Sommelier" />
+      <button type="submit" class="primary-btn" [disabled]="submitting()">
+        @if (submitting()) {
+          Saving…
+        } @else {
+          Add role
+        }
+      </button>
+    </div>
+    @if (form.controls.name.touched && form.controls.name.invalid) {
+      <small class="error">Enter a role name (at least 2 characters).</small>
+    }
+  </div>
+</form>

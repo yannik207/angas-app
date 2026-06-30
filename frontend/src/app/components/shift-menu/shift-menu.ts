@@ -12,7 +12,7 @@ import {
 import { Shift } from '../../models/shift.model';
 
 /** A shift action emitted by the menu. Add new ids here to grow the menu. */
-export type ShiftAction = 'edit' | 'delete';
+export type ShiftAction = 'details' | 'edit' | 'assign' | 'delete';
 
 interface ShiftMenuItem {
   action: ShiftAction;
@@ -25,7 +25,9 @@ interface ShiftMenuItem {
  * New adjustments can be added by extending MENU_ITEMS and the `action` output.
  */
 const MENU_ITEMS: ShiftMenuItem[] = [
+  { action: 'details', label: 'Details' },
   { action: 'edit', label: 'Edit' },
+  { action: 'assign', label: 'Assign staff' },
   { action: 'delete', label: 'Delete', danger: true },
 ];
 

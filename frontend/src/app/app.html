@@ -1,57 +1,24 @@
-<div class="shell">
-  <aside class="sidebar">
-    <div class="brand">
+<div class="layout">
+  <header class="topbar">
+    <a class="brand" routerLink="/">
       <div class="brand__mark">A</div>
       <div class="brand__text">
         <strong>Angas</strong>
         <span>Shift Planner</span>
       </div>
-    </div>
+    </a>
 
-    <div class="stats">
-      <div class="stat">
-        <span class="stat__value">{{ totalShifts() }}</span>
-        <span class="stat__label">Total shifts</span>
-      </div>
-      <div class="stat">
-        <span class="stat__value">{{ openShifts() }}</span>
-        <span class="stat__label">Open</span>
-      </div>
-    </div>
+    <nav class="nav">
+      <a class="nav__link" routerLink="/" routerLinkActive="nav__link--active" [routerLinkActiveOptions]="{ exact: true }">
+        Planner
+      </a>
+      <a class="nav__link" routerLink="/team" routerLinkActive="nav__link--active">
+        Team
+      </a>
+    </nav>
+  </header>
 
-    <section class="panel panel--grow">
-      <h3 class="panel__title">New shift</h3>
-      <app-shift-form
-        [selectedDate]="selectedKey()"
-        [submitting]="submitting()"
-        (create)="onCreate($event)"
-      />
-    </section>
-  </aside>
-
-  <main class="main">
-    @if (error()) {
-      <div class="banner banner--error">
-        {{ error() }}
-        <button type="button" class="banner__action" (click)="loadShifts()">Retry</button>
-      </div>
-    }
-
-    <app-calendar
-      [shifts]="shifts()"
-      [viewDate]="viewDate()"
-      [selectedKey]="selectedKey()"
-      (dayClick)="onDayClick($event)"
-      (monthChange)="onMonthChange($event)"
-      (shiftAction)="onShiftAction($event)"
-    />
-
-    @if (loading()) {
-      <div class="loading-veil">Loading shifts…</div>
-    }
-  </main>
-
-  @if (toast()) {
-    <div class="toast">{{ toast() }}</div>
-  }
+  <div class="content">
+    <router-outlet />
+  </div>
 </div>

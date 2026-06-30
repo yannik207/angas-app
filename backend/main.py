@@ -1,4 +1,4 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from sqlmodel import SQLModel
 from backend.utils.central_logging import setup_logger
@@ -44,3 +44,13 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+
+@app.middleware("http")
+async def middleware_logger(request: Request, call_next):
+    logger.info(
+        "which type of request is this",
+        extra={"request_type": request.method, "request_body": request.body},
+    )
+    response = await call_next(request)
+    return response

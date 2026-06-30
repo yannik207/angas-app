@@ -1,0 +1,48 @@
+<div class="page">
+  <header class="page__header">
+    <h1 class="page__title">Team management</h1>
+    <p class="page__subtitle">Manage roles and add team members.</p>
+  </header>
+
+  @if (error()) {
+    <div class="banner banner--error">{{ error() }}</div>
+  }
+
+  <div class="grid">
+    <section class="card">
+      <header class="card__header">
+        <h2 class="card__title">Roles</h2>
+        <p class="card__subtitle">Create the roles employees can be assigned.</p>
+      </header>
+
+      <app-role-form [submitting]="creatingRole()" (create)="onCreateRole($event)" />
+
+      <div class="roles">
+        @if (roleNames().length === 0) {
+          <p class="hint">No roles yet.</p>
+        } @else {
+          @for (role of roleNames(); track role) {
+            <span class="chip">{{ role }}</span>
+          }
+        }
+      </div>
+    </section>
+
+    <section class="card">
+      <header class="card__header">
+        <h2 class="card__title">New employee</h2>
+        <p class="card__subtitle">Add a team member and assign an existing role.</p>
+      </header>
+
+      <app-employee-form
+        [roles]="roleNames()"
+        [submitting]="creatingEmployee()"
+        (create)="onCreateEmployee($event)"
+      />
+    </section>
+  </div>
+
+  @if (toast()) {
+    <div class="toast">{{ toast() }}</div>
+  }
+</div>
